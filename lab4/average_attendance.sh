@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function average_attendance {
     # Выбор предмета через menu
     local SUBJECT_CHOICE=$($DIALOG --clear --stdout --title "Выбор предмета" \
@@ -51,6 +53,7 @@ function average_attendance {
 
     local total_present=0
     local total_days=0
+    local total_students=0
 
     # Подсчёт посещаемости
     local attendance_file="./labfiles/$SUBJECT/$GROUPS_CHOICE-attendance"
@@ -60,6 +63,15 @@ function average_attendance {
         return
     fi
 
+    # Определяем общее количество студентов
+    total_students=$(wc -l < "$attendance_file")
+    
+    if [[ $total_students -eq 0 ]]; then
+        $DIALOG --msgbox "Данные о студентах отсутствуют!" 10 30
+        return
+    fi
+
+    # Подсчет количества присутствий
     local days=$(head -1 "$attendance_file" | awk '{print length($2)}')
     while read -r student presence; do
         for ((i=1; i<=days; i++)); do
@@ -78,8 +90,10 @@ function average_attendance {
         return
     fi
 
-    # Вычисление средней посещаемости
-    local average=$(echo "scale=2; $total_present / $total_days" | bc)
-    $DIALOG --msgbox "Средняя посещаемость для группы $GROUPS_CHOICE по предмету $SUBJECT: $average человек на занятие." 10 30
+    # Вычисление средней посещаемости в процентах
+    local total_possible=$((total_students * total_days))
+    local average_percent=$(echo "scale=2; ($total_present / $total_possible) * 100" | bc)
+
+    $DIALOG --msgbox "Средняя посещаемость для группы $GROUPS_CHOICE по предмету $SUBJECT: $average_percent%." 10 30
 }
 

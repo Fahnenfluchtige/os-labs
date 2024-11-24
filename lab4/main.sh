@@ -15,7 +15,7 @@ source ./average_attendance.sh
 
 # Главное меню
 function choose_action {
-    local ACTION=$($DIALOG --clear --stdout --title "Главное меню" \
+    local ACTION=$($DIALOG --clear --nocancel --stdout --title "Главное меню" \
         --menu "Выберите действие:" 15 50 4 \
         1 "Поиск студентов с наибольшими ошибками" \
         2 "Найти занятия с максимальной посещаемостью" \
